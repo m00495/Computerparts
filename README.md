@@ -1,2 +1,2 @@
 # Computerparts
-https://m00495.github.io/Computerparts/
+https://m00495.github.io/Computerparts/cp
