@@ -24,8 +24,8 @@ https://m00495.github.io/Computerparts/cp
         </section>
         <section>
             <h2>Images of the Parts</h2>
-            <img src="cpu.jpg" alt="Image of a CPU">
-            <img src="ram-memory.jpg" alt="Image of RAM">
+            <img src="CPU.jpg" alt="Image of a CPU">
+            <img src="RAM Memory.jpg" alt="Image of RAM">
             <img src="disk-drive.jpg" alt="Image of a Storage Drive">
         </section>
         <section>
