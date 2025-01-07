@@ -7,12 +7,13 @@ https://m00495.github.io/Computerparts/cp
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Computer Parts</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
+    <header role="banner">
         <h1>Computer Parts</h1>
     </header>
-    <main>
+    <main role="main">
         <section>
             <h2>Top 3 Most Important Parts</h2>
             <ul>
@@ -23,8 +24,8 @@ https://m00495.github.io/Computerparts/cp
         </section>
         <section>
             <h2>Images of the Parts</h2>
-            <img src="CPU.jpg" alt="Image of a CPU">
-            <img src="RAM Memory.jpg" alt="Image of RAM">
+            <img src="cpu.jpg" alt="Image of a CPU">
+            <img src="ram-memory.jpg" alt="Image of RAM">
             <img src="disk-drive.jpg" alt="Image of a Storage Drive">
         </section>
         <section>
@@ -35,7 +36,7 @@ https://m00495.github.io/Computerparts/cp
             </p>
         </section>
     </main>
-    <footer>
+    <footer role="contentinfo">
         <p>&copy; 2025 Computer Parts | m00495</p>
     </footer>
 </body>
