@@ -1,5 +1,6 @@
 # Computerparts
 https://m00495.github.io/Computerparts/cp
+
 /* General Reset */
 body {
     margin: 0;
