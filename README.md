@@ -1,5 +1,5 @@
 # Computerparts
-https://m00495.github.io/Computerparts/index
+https://m00495.github.io/LocationsFarms/index
 
 /* General Reset */
 body {
