@@ -1,59 +1,364 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Computer Parts</title>
-    <style>
-        #contaner{
-            min-height: 100vh ;
-            margin-bottom: 75px;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دليل رعاة المزارع</title>
+<link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        }
-        #contaner:after{
-            content: "";
-            display: block;
-            height: 75px;
-        }
-        ul {
-            color: rgb(10, 10, 10);
-            background-color: rgb(192, 192, 192);
-            font-family: myfont;
-            src: url("arabic-pixel.ttf");
-            }
-    </style>
-    <link rel="stylesheet" href="style.css">
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffdf7;
+    --border: #d6c9a8;
+    --text: #2c2416;
+    --muted: #7a6a4f;
+    --accent: #5a7a3a;
+    --accent-light: #eaf2df;
+    --accent-hover: #4a6630;
+    --maps: #1a73e8;
+    --maps-hover: #1558b0;
+    --shadow: rgba(44, 36, 22, 0.08);
+  }
+
+  body {
+    font-family: 'El Messiri', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    background: var(--accent);
+    padding: 2rem 2rem 1.5rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.25rem;
+  }
+
+  header p {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .search-wrap {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .search-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  #searchInput {
+    width: 100%;
+    padding: 0.75rem 2.8rem 0.75rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  #searchInput:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(90,122,58,0.15);
+    background: #fff;
+  }
+
+  #searchInput::placeholder { color: var(--muted); }
+
+  .stats {
+    max-width: 720px;
+    margin: 1.25rem auto 0.5rem;
+    padding: 0 0.25rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .list {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0.5rem 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: box-shadow 0.18s, transform 0.18s;
+    animation: fadeUp 0.25s ease both;
+  }
+
+  .card:hover {
+    box-shadow: 0 4px 16px var(--shadow);
+    transform: translateY(-1px);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .avatar {
+    display: none;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 3px;
+    font-style: italic;
+    opacity: 0.75;
+  }
+
+  .info { min-width: 0; }
+
+  .name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .location {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .location svg { vertical-align: middle; margin-left: 3px; }
+
+  .btn-map {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem 1rem;
+    background: var(--maps);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.18s, transform 0.12s;
+  }
+
+  .btn-map:hover { background: var(--maps-hover); }
+  .btn-map:active { transform: scale(0.97); }
+
+  .empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    display: none;
+  }
+
+  .empty svg { display: block; margin: 0 auto 1rem; opacity: 0.35; }
+  .empty p { font-size: 1rem; }
+
+  .footer-section {
+    max-width: 720px;
+    margin: 0 auto 3rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px dashed var(--border);
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-align: center;
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  mark {
+    background: #fff3a3;
+    border-radius: 3px;
+    padding: 0 1px;
+    color: var(--text);
+  }
+
+  @media (max-width: 540px) {
+    header { padding: 1.5rem 1rem 1.2rem; }
+    header h1 { font-size: 1.4rem; }
+    .search-wrap { padding: 1rem; }
+    .list { padding: 0.5rem 1rem 3rem; }
+    .btn-map span { display: none; }
+    .btn-map { padding: 0.5rem 0.7rem; }
+  }
+</style>
 </head>
 <body>
-    <!-- Header Section -->
-    <header role="banner">
-        <h1>Computer Parts</h1>
-    </header>
 
-    <!-- Main Content -->
-    <main role="main">
-        <section>
-            <h2>Top 3 Most Important Parts</h2>
-            <ul>
-                <li><strong>Central Processing Unit (CPU):</strong> ابي لسان brain of the computer that processes instructions.</li>
-                <li><strong>Memory (RAM):</strong> Temporary storage for data being actively used by the CPU.</li>
-                <li><strong>Storage Drive:</strong> Permanent storage for all data and operating systems, such as SSD or HDD.</li>
-            </ul>
-        </section>
+<header>
+  <h1>🌾 دليل رعاة المزارع</h1>
+  <p>ابحث عن راعي المزرعة وافتح موقعها مباشرة في الخريطة</p>
+</header>
 
+<div class="search-wrap">
+  <div class="search-inner">
+    <svg class="search-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="searchInput" placeholder="ابحث عن اسم الراعي أو المزرعة..." autocomplete="off" />
+  </div>
+</div>
 
-        <section>
-            <h2>Learn More</h2>
-            <p>
-                For detailed information about computer parts, visit 
-                <a href="https://en.wikipedia.org/wiki/Computer_hardware" target="_blank">Computer Parts</a>.
-            </p>
-        </section>
-    </main>
-    
-    <!-- Footer Section -->
-    <footer role="contentinfo">
-        <p>&copy; 2026 بس موقع بسيط لخدمتك  | m00495</p>
-    </footer>
+<div class="stats" id="stats"></div>
+
+<div class="list" id="list"></div>
+
+<div class="footer-section">
+  <p>اقدر احطلك هنا اي شي بعد لو بغيت</p>
+</div>
+
+<div class="empty" id="empty">
+  <svg width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/>
+  </svg>
+  <p>ما لقينا نتائج — جرب اسم ثاني</p>
+</div>
+
+<script>
+const farmers = [
+  { name: "عبدالله بن سعد العتيبي",   farm: "مزرعة العتيبي",    area: "الرياض - الخرج",       lat: 24.1585, lng: 47.3352 },
+  { name: "محمد بن فهد القحطاني",    farm: "مزرعة الوادي",     area: "الأحساء",              lat: 25.3742, lng: 49.5878 },
+  { name: "سعد بن ناصر الشمري",      farm: "مزرعة النخيل",     area: "حائل",                 lat: 27.5114, lng: 41.7208 },
+  { name: "خالد بن عبدالرحمن الدوسري", farm: "مزرعة الدوسري",  area: "الرياض - الدرعية",    lat: 24.7388, lng: 46.5745 },
+  { name: "فهد بن علي الزهراني",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 21.2703, lng: 40.4158 },
+  { name: "عبدالعزيز بن محمد الغامدي", farm: "مزرعة الغامدي",  area: "الباحة",               lat: 20.0129, lng: 41.4677 },
+  { name: "سلطان بن يوسف المطيري",   farm: "مزرعة السلطان",    area: "بريدة",                lat: 26.3260, lng: 43.9750 },
+  { name: "تركي بن سلمان الحربي",    farm: "مزرعة الحربي",     area: "المدينة المنورة",      lat: 24.5247, lng: 39.5692 },
+  { name: "ناصر بن إبراهيم الشهراني", farm: "مزرعة الهدى",     area: "أبها",                 lat: 18.2164, lng: 42.5053 },
+  { name: "راشد بن أحمد العنزي",     farm: "مزرعة العنزي",     area: "تبوك",                 lat: 28.3835, lng: 36.5662 },
+  { name: "مشعل بن سعود الرشيدي",    farm: "مزرعة الرشيدي",    area: "سكاكا",                lat: 29.9697, lng: 40.2066 },
+  { name: "وليد بن حمد السبيعي",     farm: "مزرعة الخضراء",    area: "الدوادمي",             lat: 24.5006, lng: 44.3882 },
+  { name: "حمود بن جابر البلوي",     farm: "مزرعة البستان",    area: "وادي الدواسر",         lat: 20.5039, lng: 44.9908 },
+  { name: "عمر بن طلال المالكي",     farm: "مزرعة الفيحاء",    area: "جيزان",                lat: 16.8892, lng: 42.5611 },
+  { name: "بدر بن حسن السلمي",       farm: "مزرعة الرياحين",   area: "نجران",                lat: 17.5656, lng: 44.2289 },
+];
+
+function initials(name) {
+  const parts = name.trim().split(' ');
+  return parts.length >= 2 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2);
+}
+
+function highlight(text, query) {
+  if (!query) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(escaped, 'gi'), m => `<mark>${m}</mark>`);
+}
+
+function openMaps(lat, lng, name) {
+  const url = `https://www.google.com/maps?q=${lat},${lng}&z=15&hl=ar`;
+  window.open(url, '_blank');
+}
+
+function render(query) {
+  const q = query.trim();
+  const filtered = q
+    ? farmers.filter(f =>
+        f.name.includes(q) || f.farm.includes(q) || f.area.includes(q)
+      )
+    : farmers;
+
+  const list = document.getElementById('list');
+  const empty = document.getElementById('empty');
+  const stats = document.getElementById('stats');
+
+  list.innerHTML = '';
+
+  if (filtered.length === 0) {
+    empty.style.display = 'block';
+    stats.textContent = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  stats.textContent = `${filtered.length} نتيجة من أصل ${farmers.length}`;
+
+  filtered.forEach((f, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.animationDelay = `${i * 30}ms`;
+    card.innerHTML = `
+      <div class="card-left">
+        <div class="avatar">${initials(f.name)}</div>
+        <div class="info">
+          <div class="name">${highlight(f.name, q)}</div>
+          <div class="location">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              <circle cx="12" cy="9" r="2.5"/>
+            </svg>
+            ${highlight(f.farm, q)} — ${highlight(f.area, q)}
+          </div>
+        </div>
+      </div>
+      <button class="btn-map" onclick="openMaps(${f.lat}, ${f.lng}, '${f.name}')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span>فتح الخريطة</span>
+      </button>
+    `;
+    list.appendChild(card);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
+render('');
+</script>
 </body>
 </html>
