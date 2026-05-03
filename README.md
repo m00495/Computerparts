@@ -1,5 +1,5 @@
 # Computerparts
-https://m00495.github.io/Computerparts/c
+https://m00495.github.io/Computerparts/cp
 
 /* General Reset */
 body {
