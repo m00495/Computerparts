@@ -344,7 +344,7 @@
 
 <script>
 // ========== استبدل هذا الرابط برابط تطبيق الويب الخاص بك من Apps Script ==========
-const API_URL = 'https://script.google.com/macros/s/AKfycby.../exec'; // <-- ضع رابطك هنا
+const API_URL = 'https://script.google.com/macros/s/AKfycbyP2Dq_-WaXVVIxBr8a4S5Sa0zqnccioGVuAkfEAFJmI_bK4_XS2P7OB8es6jq7Xiui2w/exec'; // <-- ضع رابطك هنا
 // ================================================================================
 
 const PASSWORD = '12345'; // غيّر كلمة المرور إلى ما تريد مشاركته مع الموظفين
@@ -446,8 +446,6 @@ function render(query) {
 
   empty.style.display = 'none';
   stats.textContent = `${filtered.length} من أصل ${farmers.length}`;
-
-  const API_URL = 'https://script.google.com/macros/s/AKfycbwpk2b2mcOUauhfZF9-kPK00AdO-LMdi5HQ_YXuPH7AitZA3O9JdQz4dSpvH_e4vNyAxw/exec';
 
   filtered.forEach((f, i) => {
     const card = document.createElement('div');
