@@ -7,6 +7,7 @@
 <title>قائمة الأسامي</title>
 <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* -- جميع الأنماط السابقة تبقى كما هي -- */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -144,10 +145,6 @@
     flex: 1;
   }
 
-  .avatar {
-    display: none;
-  }
-
   .subtitle {
     font-size: 0.8rem;
     color: var(--muted);
@@ -228,6 +225,75 @@
     color: var(--text);
   }
 
+  /* --- أنماط أزرار الحالة الجديدة --- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 85px;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: default;
+    transition: background 0.2s, color 0.2s, filter 0.2s;
+    user-select: none;
+  }
+
+  .status-badge.visited {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .status-badge.not-visited {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  /* عندما يدخل الموظفون كلمة المرور، نجعل المؤشر يتحول إلى يد */
+  body.editable .status-badge {
+    cursor: pointer;
+  }
+
+  body.editable .status-badge:hover {
+    filter: brightness(0.93);
+  }
+
+  /* قسم كلمة المرور */
+  .password-section {
+    max-width: 720px;
+    margin: 1.5rem auto 0;
+    padding: 0.5rem 2rem;
+    text-align: center;
+  }
+
+  .password-section input[type="password"] {
+    padding: 0.5rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    width: 160px;
+    margin-left: 0.5rem;
+  }
+
+  .password-section button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .password-section button:hover {
+    background: var(--accent-hover);
+  }
+
   @media (max-width: 540px) {
     header { padding: 1.5rem 1rem 1.2rem; }
     header h1 { font-size: 1.4rem; }
@@ -235,6 +301,7 @@
     .list { padding: 0.5rem 1rem 3rem; }
     .btn-map span { display: none; }
     .btn-map { padding: 0.5rem 0.7rem; }
+    .password-section { padding: 0.5rem 1rem; }
   }
 </style>
 </head>
@@ -242,8 +309,15 @@
 
 <header>
   <h1>دليلك للأسامي</h1>
-  <p>ابحث عن راعي المزرعة وافتح موقعها بضغطك "هنا" علطول</p>
+  <p>ابحث عن راعي المزرعة وافتح موقعها بضغطة "هنا"</p>
 </header>
+
+<!-- قسم كلمة المرور للموظفين -->
+<div class="password-section" id="passwordSection">
+  <input type="password" id="empPassword" placeholder="رمز الموظفين">
+  <button onclick="attemptLogin()">دخول</button>
+  <span id="loginError" style="color:red; font-size:0.85rem; display:block; margin-top:5px;"></span>
+</div>
 
 <div class="search-wrap">
   <div class="search-inner">
@@ -258,8 +332,7 @@
 
 <div class="list" id="list"></div>
 
-<div class="footer-section">
-</div>
+<div class="footer-section"></div>
 
 <div class="empty" id="empty">
   <svg width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -270,30 +343,75 @@
 </div>
 
 <script>
+// ========== استبدل هذا الرابط برابط تطبيق الويب الخاص بك من Apps Script ==========
+const API_URL = 'https://script.google.com/macros/s/AKfycby.../exec'; // <-- ضع رابطك هنا
+// ================================================================================
+
+const PASSWORD = '12345'; // غيّر كلمة المرور إلى ما تريد مشاركته مع الموظفين
+let isEditing = false;      // تصبح true بعد إدخال كلمة المرور الصحيحة
+
+// بيانات المزارع
 const farmers = [
-  { name: "سعود عبد العزيز الرفين",   farm: "مزرعة العتيبي",    area: "الرياض - الخرج",       lat: 22.238749 , lng: 46.775326 },
-  { name: "ورثة ناجي شايع الرمان",    farm: "مزرعة الوادي",     area: "الأحساء",              lat: 22.239825, lng: 46.773673 },
-  { name: "محمد عبد الله يحيى البواردي",      farm: "مزرعة النخيل",     area: "حائل",          lat: 22.22442, lng: 46.77877 },
-  { name: "ورثة مبارك عبد الله الخرعان", farm: "مزرعة الدوسري",  area: "الرياض - الدرعية",    lat: 22.224773, lng: 46.780029 },
-  { name: "قينان عباس ال عمار",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.225637, lng: 46.779094 },
-  { name: "صالح مسفر الفواز",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.223170, lng: 46.779222 },
-  { name: "ورثة سعود شافي الرشود",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.246089, lng: 46.773141 },
-  { name: "الدرداح هندي منصور الرشود",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.243854, lng: 46.773435 },
-  { name: "ورثة ابراهيم سعود الرشود",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.243901, lng: 46.772916 },
-  { name:"شايع تميم محمد ال عمار",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.224486, lng: 46.780675 },
-  { name: "ورثة ابراهيم حمود الجرفين",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.241019, lng: 46.770277 },
-  { name: "ورثة تميم رشود العنيزان",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.242497, lng: 46.776967 },
-  { name: "ورثة عبد الهادي عنبر المقابله",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.223485, lng: 46.782705 },
-  { name: "عبد الرحمن سالم العبد الهادي",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.241422, lng: 46.776140 },
-  { name: "ورثة تميم محمد ال عمار",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.224486, lng: 46.780675 },
-  { name: "درعان مسلم العبد الهادي",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.224901, lng: 46.780722 },
+  { id: 1, name: "سعود عبد العزيز الرفين",   farm: "مزرعة العتيبي",    area: "الرياض - الخرج",       lat: 22.238749 , lng: 46.775326 },
+  { id: 2, name: "ورثة ناجي شايع الرمان",    farm: "مزرعة الوادي",     area: "الأحساء",              lat: 22.239825, lng: 46.773673 },
+  { id: 3, name: "محمد عبد الله يحيى البواردي",      farm: "مزرعة النخيل",     area: "حائل",          lat: 22.22442, lng: 46.77877 },
+  { id: 4, name: "ورثة مبارك عبد الله الخرعان", farm: "مزرعة الدوسري",  area: "الرياض - الدرعية",    lat: 22.224773, lng: 46.780029 },
+  { id: 5, name: "قينان عباس ال عمار",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.225637, lng: 46.779094 },
+  { id: 6, name: "صالح مسفر الفواز",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.223170, lng: 46.779222 },
+  { id: 7, name: "ورثة سعود شافي الرشود",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.246089, lng: 46.773141 },
+  { id: 8, name: "الدرداح هندي منصور الرشود",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.243854, lng: 46.773435 },
+  { id: 9, name: "ورثة ابراهيم سعود الرشود",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.243901, lng: 46.772916 },
+  { id:10, name:"شايع تميم محمد ال عمار",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.224486, lng: 46.780675 },
+  { id:11, name: "ورثة ابراهيم حمود الجرفين",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.241019, lng: 46.770277 },
+  { id:12, name: "ورثة تميم رشود العنيزان",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.242497, lng: 46.776967 },
+  { id:13, name: "ورثة عبد الهادي عنبر المقابله",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.223485, lng: 46.782705 },
+  { id:14, name: "عبد الرحمن سالم العبد الهادي",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.241422, lng: 46.776140 },
+  { id:15, name: "ورثة تميم محمد ال عمار",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.224486, lng: 46.780675 },
+  { id:16, name: "درعان مسلم العبد الهادي",     farm: "مزرعة الجبل",      area: "الطائف",               lat: 22.224901, lng: 46.780722 }
+];
 
-]
-
-function initials(name) {
-  const parts = name.trim().split(' ');
-  return parts.length >= 2 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2);
+// دالة تسجيل الدخول
+function attemptLogin() {
+  const pw = document.getElementById('empPassword').value;
+  const error = document.getElementById('loginError');
+  if (pw === PASSWORD) {
+    isEditing = true;
+    document.body.classList.add('editable'); // إضافة كلاس للـ body ليظهر المؤشر كيد عند الحالة
+    document.getElementById('passwordSection').style.display = 'none';
+    error.textContent = '';
+    // إعادة عرض القائمة مع تفعيل التعديل
+    render(document.getElementById('searchInput').value);
+  } else {
+    error.textContent = 'رمز خاطئ – حاول مرة أخرى.';
+  }
 }
+
+// --- دوال التعامل مع Google Sheets ---
+async function fetchVisits() {
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    return data; // مصفوفة { id, name, visited }
+  } catch (e) {
+    console.error('فشل جلب حالات الزيارة', e);
+    return [];
+  }
+}
+
+async function updateVisitInSheet(farmId, visited) {
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors', // ضروري لتجنب مشاكل CORS
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: farmId, visited: visited })
+    });
+  } catch (e) {
+    console.error('فشل الام', e);
+  }
+}
+
+let visitsMap = {}; // لتخزين حالات الزيارة القادمة من Google Sheets
 
 function highlight(text, query) {
   if (!query) return text;
@@ -327,15 +445,17 @@ function render(query) {
   }
 
   empty.style.display = 'none';
-  stats.textContent = `${filtered.length}من اصل ${farmers.length}`;
+  stats.textContent = `${filtered.length} من أصل ${farmers.length}`;
 
   filtered.forEach((f, i) => {
     const card = document.createElement('div');
     card.className = 'card';
     card.style.animationDelay = `${i * 30}ms`;
+
+    const visited = visitsMap[f.id] === true; // true/false من الجدول
+
     card.innerHTML = `
       <div class="card-left">
-        <div class="avatar">${initials(f.name)}</div>
         <div class="info">
           <div class="name">${highlight(f.name, q)}</div>
           <div class="location">
@@ -343,24 +463,58 @@ function render(query) {
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
               <circle cx="12" cy="9" r="2.5"/>
             </svg>
-            
+            ${f.area}
           </div>
         </div>
       </div>
-      <button class="btn-map" onclick="openMaps(${f.lat}, ${f.lng}, '${f.name}')">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
-        </svg>
-        <span>هنا</span>
-      </button>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span class="status-badge ${visited ? 'visited' : 'not-visited'}" data-id="${f.id}">${visited ? 'تم' : 'لم يتم'}</span>
+        <button class="btn-map" onclick="openMaps(${f.lat}, ${f.lng}, '${f.name}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>هنا</span>
+        </button>
+      </div>
     `;
     list.appendChild(card);
   });
+
+  // إضافة مستمعي الأحداث لأزرار الحالة (تعمل فقط إذا isEditing == true)
+  document.querySelectorAll('.status-badge').forEach(badge => {
+    badge.addEventListener('click', async function() {
+      if (!isEditing) return; // لا تفعل شيء إذا لم يتم تسجيل الدخول
+      const farmId = parseInt(this.dataset.id);
+      const currentVisited = visitsMap[farmId] === true;
+      const newVisited = !currentVisited;
+
+      // تحديث المظهر فوراً
+      this.classList.toggle('visited', newVisited);
+      this.classList.toggle('not-visited', !newVisited);
+      this.textContent = newVisited ? 'ترشيد' : 'لم يتم';
+
+      // تحديث الخريطة المحلية
+      visitsMap[farmId] = newVisited;
+
+      // إرسال التحديث إلى Google Sheets
+      await updateVisitInSheet(farmId, newVisited);
+    });
+  });
 }
 
-document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
-render('');
+// ========== تشغيل الصفحة ==========
+(async function init() {
+  // جلب حالات الزيارة من Google Sheets
+  const visitsData = await fetchVisits();
+  visitsData.forEach(v => { visitsMap[v.id] = v.visited; });
+
+  // عرض القائمة لأول مرة (بدون كلمة مرور، المربعات غير قابلة للتعديل)
+  render('');
+
+  // ربط البحث
+  document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
+})();
 </script>
 </body>
 </html>
