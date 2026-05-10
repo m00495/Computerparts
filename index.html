@@ -447,6 +447,8 @@ function render(query) {
   empty.style.display = 'none';
   stats.textContent = `${filtered.length} من أصل ${farmers.length}`;
 
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwpk2b2mcOUauhfZF9-kPK00AdO-LMdi5HQ_YXuPH7AitZA3O9JdQz4dSpvH_e4vNyAxw/exec';
+
   filtered.forEach((f, i) => {
     const card = document.createElement('div');
     card.className = 'card';
